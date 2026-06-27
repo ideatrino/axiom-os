@@ -1,3 +1,0 @@
-cargo:rustc-env=BIOS_IMAGE=/home/ideatrino/axiom-os/target/debug/build/boot-a482876370663a31/out/axiom-bios.img
-cargo:rustc-env=UEFI_IMAGE=/home/ideatrino/axiom-os/target/debug/build/boot-a482876370663a31/out/axiom-uefi.img
-cargo:rerun-if-changed=/home/ideatrino/axiom-os/target/x86_64-unknown-none/debug/deps/artifact/kernel-4a5961dde72dd973/bin/kernel-4a5961dde72dd973

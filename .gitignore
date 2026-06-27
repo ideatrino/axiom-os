@@ -1,0 +1,18 @@
+# Rust build artifacts
+/target/
+**/target/
+
+# Compiled userspace object (keep .elf and .s, exclude .o)
+userspace/hello.o
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Editor files
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
