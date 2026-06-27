@@ -195,3 +195,7 @@ Research prototype. Not for production use.
 ## Status
 
 [![AXIOM OS CI](https://github.com/ideatrino/axiom-os/actions/workflows/ci.yml/badge.svg)](https://github.com/ideatrino/axiom-os/actions/workflows/ci.yml)
+
+## Paper
+
+[📄 AXIOM OS: Executable Formal Security Guarantees in a Bare-Metal x86-64 Microkernel (PDF)](docs/paper.pdf)
