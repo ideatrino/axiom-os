@@ -191,3 +191,7 @@ Running proof:
 ## Licence
 
 Research prototype. Not for production use.
+
+## Status
+
+[![AXIOM OS CI](https://github.com/ideatrino/axiom-os/actions/workflows/ci.yml/badge.svg)](https://github.com/ideatrino/axiom-os/actions/workflows/ci.yml)
