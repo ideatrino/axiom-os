@@ -1,0 +1,24 @@
+[package]
+name = "kernel"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "kernel"
+test = false
+bench = false
+
+[dependencies]
+bootloader_api = "0.11"
+x86_64 = "0.15"
+spin = "0.9"
+uart_16550 = "0.3"
+pic8259 = "0.11"
+linked_list_allocator = "0.10"
+
+[dependencies.lazy_static]
+version = "1.5"
+features = ["spin_no_std"]
+
+[build-dependencies]
+cc = "1"

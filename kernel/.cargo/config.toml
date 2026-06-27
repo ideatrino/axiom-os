@@ -1,0 +1,10 @@
+# Tells Cargo to recompile core/alloc/compiler_builtins for our bare-metal
+# target (the precompiled ones assume an OS exists). This is the `build-std`
+# feature — essential for no_std kernel development.
+
+[unstable]
+build-std = ["core", "compiler_builtins", "alloc"]
+build-std-features = ["compiler-builtins-mem"]
+
+[build]
+target = "x86_64-unknown-none"

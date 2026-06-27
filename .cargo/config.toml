@@ -1,0 +1,6 @@
+# Enables the unstable "artifact dependencies" feature (bindeps).
+# This lets the `boot` crate depend on the compiled `kernel` binary.
+# Required by the bootloader 0.11 workflow.
+
+[unstable]
+bindeps = true

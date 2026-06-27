@@ -1,0 +1,7 @@
+# Pins the toolchain so every build is reproducible.
+# When you `cd` into this folder, rustup automatically selects this toolchain.
+
+[toolchain]
+channel = "nightly"
+components = ["rust-src", "llvm-tools-preview"]
+targets = ["x86_64-unknown-none"]

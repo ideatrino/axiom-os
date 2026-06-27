@@ -1,0 +1,19 @@
+# The "boot" crate. This runs on your HOST machine (not bare metal).
+# Its job: take the compiled kernel, wrap it in a bootable disk image using
+# the `bootloader` crate, and then launch QEMU pointed at that image.
+#
+# The kernel is pulled in as a build-time ARTIFACT dependency, which is why
+# the workspace `.cargo/config.toml` enables the `bindeps` feature.
+
+[package]
+name = "boot"
+version = "0.1.0"
+edition = "2021"
+
+[build-dependencies]
+bootloader = "0.11"
+# Pull in the compiled kernel binary, built for the bare-metal target.
+kernel = { path = "../kernel", artifact = "bin", target = "x86_64-unknown-none" }
+
+[dependencies]
+# (none needed at runtime; we just shell out to qemu)

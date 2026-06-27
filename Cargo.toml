@@ -1,0 +1,21 @@
+# AXIOM OS — Cargo workspace root
+#
+# Two members:
+#   - kernel : the bare-metal kernel itself (compiled for x86_64-unknown-none)
+#   - boot   : a small host-side helper that wraps the kernel in a bootable
+#              disk image (using the `bootloader` crate) and launches QEMU.
+#
+# The `boot` crate depends on `kernel` as a build-time ARTIFACT dependency,
+# which is an unstable Cargo feature (bindeps) — that's why we need nightly
+# and the `.cargo/config.toml` that enables it.
+
+[workspace]
+resolver = "2"
+members = ["kernel", "boot", "axiom-tests"]
+
+# Build the kernel optimized even in debug so it fits and runs well.
+[profile.dev]
+panic = "abort"      # a kernel has nowhere to "unwind" a panic to
+
+[profile.release]
+panic = "abort"
