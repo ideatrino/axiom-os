@@ -38,24 +38,35 @@ jobs:
           echo "hello.elf: $(wc -c < hello.elf) bytes"
       - name: Build kernel
         run: cargo build --package boot
-      - name: Boot and capture output
+      - name: Boot and capture serial output
         run: |
-          timeout 25 cargo run --package boot > /tmp/axiom_stdout.txt 2> /tmp/axiom_stderr.txt || true
-          echo "=== Boot output (last 30 lines) ==="
-          tail -30 /tmp/axiom_stdout.txt
+          # Find the BIOS image built by bootloader
+          BIOS_IMG=$(find target -name "axiom-bios.img" | head -1)
+          echo "Boot image: $BIOS_IMG"
+
+          # Run QEMU directly with serial output to file
+          # -nographic sends serial to stdout, -serial mon:stdio captures it
+          timeout 30 qemu-system-x86_64 \
+            -drive format=raw,file="$BIOS_IMG" \
+            -serial file:/tmp/axiom_serial.txt \
+            -display none \
+            -no-reboot \
+            2>/tmp/axiom_qemu_err.txt || true
+
+          echo "=== Serial output ==="
+          cat /tmp/axiom_serial.txt | head -100
+          echo "=== QEMU stderr ==="
+          cat /tmp/axiom_qemu_err.txt | head -20
       - name: Verify all checkpoints
         run: |
-          cat /tmp/axiom_stdout.txt /tmp/axiom_stderr.txt | python3 scripts/verify_boot.py
-      - name: Verify specific checkpoint strings
+          python3 scripts/verify_boot.py < /tmp/axiom_serial.txt
+      - name: Show full serial log on failure
+        if: failure()
         run: |
-          grep -q "SHOT 12" /tmp/axiom_stdout.txt
-          grep -q "FULLY OPERATIONAL" /tmp/axiom_stdout.txt
-          grep -q "Chain verification.*PASSED" /tmp/axiom_stdout.txt
-          grep -q "SHA-256 implementation: CORRECT" /tmp/axiom_stdout.txt
-          grep -q "HMAC-SHA-256 implementation: CORRECT" /tmp/axiom_stdout.txt
-          grep -q "ChaCha20-Poly1305" /tmp/axiom_stdout.txt
-          grep -q "ELF loaded" /tmp/axiom_stdout.txt
-          echo "All CI checkpoint strings verified."
+          echo "=== Full serial output ==="
+          cat /tmp/axiom_serial.txt
+          echo "=== QEMU errors ==="
+          cat /tmp/axiom_qemu_err.txt
 
   lean-typecheck:
     name: Lean 4 theorem statements typecheck
@@ -70,6 +81,5 @@ jobs:
         run: |
           cd lean
           lean --version
-          # Just check the file is valid Lean 4 syntax
           lean Axiom.lean --only-export 2>&1 | head -20 || true
           echo "Lean 4 theorem file present and parseable."
