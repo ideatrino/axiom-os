@@ -37,6 +37,21 @@ specification. Those theorems are not just claims -- they run and pass on every 
 
 ---
 
+---
+
+## Known limitations
+
+**SMP (multi-core):** Core detection, ACPI/MADT parsing, the AP trampoline,
+trampoline page-mapping, and the xAPIC INIT-SIPI-SIPI startup sequence are
+all implemented. AP startup is **not yet confirmed** under available
+virtualization: APs reset on INIT but do not start on SIPI under QEMU/TCG,
+QEMU/KVM, SeaBIOS, and OVMF/UEFI. The single-core path boots cleanly on
+both BIOS and UEFI with all subsystems verified. Full diagnosis and
+excluded causes: [docs/SMP_STATUS.md](docs/SMP_STATUS.md).
+
+
+---
+
 ## Formal contributions
 
 ### TCD -- Temporal Capability Decay
