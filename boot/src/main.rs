@@ -37,6 +37,8 @@ fn main() {
 
     // A little extra RAM and a sane CPU.
     cmd.arg("-m").arg("256M");
+    // SMP: 4 logical CPUs (1 BSP + 3 APs).
+    cmd.arg("-smp").arg("4");
 
     // Uncomment to log every interrupt + CPU reset (great for debugging a
     // triple-fault / boot loop):

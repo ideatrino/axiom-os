@@ -70,6 +70,9 @@ fn kernel_main(boot_info: &'static mut BootInfo) -> ! {
         .into_option()
         .expect("bootloader did not map physical memory");
 
+    // RSDP physical address from the bootloader (works on BIOS and UEFI).
+    let rsdp_addr: Option<u64> = boot_info.rsdp_addr.into_option();
+
     // Safety: boot_info is &'static mut so its fields are valid for 'static.
     let memory_regions: &'static _ = unsafe {
         &*(core::ptr::addr_of!(boot_info.memory_regions))
@@ -120,9 +123,23 @@ fn kernel_main(boot_info: &'static mut BootInfo) -> ! {
         serial_println!("[ok] heap: Box={:#x} BTreeMap={:?}", *b, m);
     }
 
-    // ── SMP: detect cores and initialise per-core data ──────────────────────────
-    smp::init_bsp();
-    serial_println!("[ok] SMP: {} logical CPU(s) detected", smp::core_count());
+    // ── SMP: identity-map the AP trampoline page, then start APs ──────────────
+    {
+        use x86_64::structures::paging::{Page, PhysFrame, PageTableFlags, Mapper, Size4KiB};
+        use x86_64::{VirtAddr, PhysAddr};
+
+        let page  = Page::<Size4KiB>::containing_address(VirtAddr::new(0x50000));
+        let frame = PhysFrame::<Size4KiB>::containing_address(PhysAddr::new(0x50000));
+        let flags = PageTableFlags::PRESENT | PageTableFlags::WRITABLE;
+        match unsafe { mapper.map_to(page, frame, flags, &mut frame_allocator) } {
+            Ok(t)  => { t.flush(); serial_println!("[ok] trampoline page 0x50000 identity-mapped"); }
+            Err(e) => serial_println!("[warn] trampoline map: {:?} (may already be mapped)", e),
+        }
+
+        let cr3: u64;
+        unsafe { core::arch::asm!("mov {}, cr3", out(reg) cr3); }
+        smp::init(phys_mem_offset.as_u64(), cr3, rsdp_addr);
+    }
 
     // ── MEAL: log that the kernel successfully initialised ─────────────────────
     meal::log(meal::AuditEvent::LogInitialised, 0, 0, 0);
@@ -187,7 +204,6 @@ fn kernel_main(boot_info: &'static mut BootInfo) -> ! {
     }
 
     // ── SMP status report ─────────────────────────────────────────────────────
-    smp::print_status();
 
     // ── Network stack demo ───────────────────────────────────────────────────
     net::run_demo();
