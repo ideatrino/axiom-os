@@ -37,8 +37,6 @@ specification. Those theorems are not just claims -- they run and pass on every 
 
 ---
 
----
-
 ## Known limitations
 
 **SMP (multi-core):** Core detection, ACPI/MADT parsing, the AP trampoline,
